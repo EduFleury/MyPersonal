@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: training
+  datasource:
+    url: jdbc:mysql://localhost:3306/dbpersonal?useSSL=false&serverTimezone=America/Sao_Paulo
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+    show-sql: false
+    open-in-view: false
