@@ -1,7 +1,8 @@
 package com.personal.training.controller;
 
-import com.personal.training.dto.AlunoRequestDTO;
-import com.personal.training.dto.AlunoResponseDTO;
+import com.personal.training.dto.Aluno.AlunoRequestDTO;
+import com.personal.training.dto.Aluno.AlunoResponseDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.service.AlunoService;
 import jakarta.validation.Valid;
@@ -39,6 +40,22 @@ public class AlunoController {
     ) throws RegraNegocioException {
 
         return alunoService.buscarPorId(id);
+    }
+
+    @GetMapping("/usuario/{id}")
+    public AlunoResponseDTO buscarPorIdUsuario(
+            @PathVariable Long id
+    ) throws RegraNegocioException {
+
+        return alunoService.buscarPorIdUsuario(id);
+    }
+
+    @GetMapping("/email")
+    public AlunoResponseDTO buscarPorEmailUsuario(
+            @RequestBody @Valid UsuarioRequestFindByEmailDTO dto
+    ) throws RegraNegocioException {
+
+        return alunoService.buscarPorEmailUsuario(dto);
     }
 
     @PutMapping("/{id}")

@@ -1,13 +1,16 @@
 package com.personal.training.controller;
 
-import com.personal.training.dto.UsuarioRequestDTO;
-import com.personal.training.dto.UsuarioRequestFindByEmailDTO;
-import com.personal.training.dto.UsuarioResponseDTO;
+import com.personal.training.dto.Login.TrocaSenhaDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
+import com.personal.training.dto.Usuario.UsuarioResponseDTO;
 import com.personal.training.exception.RegraNegocioException;
+import com.personal.training.service.AuthService;
 import com.personal.training.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final AuthService authService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -57,6 +61,13 @@ public class UsuarioController {
     ) throws RegraNegocioException {
 
         return usuarioService.atualizar(id, dto);
+    }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<Void> trocarSenha(@PathVariable Long id,
+                                            @RequestBody TrocaSenhaDTO dto) throws RegraNegocioException {
+        authService.trocarSenha(id, dto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

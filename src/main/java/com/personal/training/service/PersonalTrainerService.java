@@ -1,7 +1,8 @@
 package com.personal.training.service;
 
-import com.personal.training.dto.PersonalTrainerRequestDTO;
-import com.personal.training.dto.PersonalTrainerResponseDTO;
+import com.personal.training.dto.Personal.PersonalTrainerRequestDTO;
+import com.personal.training.dto.Personal.PersonalTrainerResponseDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Enum.TipoUsuario;
 import com.personal.training.model.PersonalTrainer;
@@ -52,6 +53,26 @@ public class PersonalTrainerService {
 
         PersonalTrainer personalTrainer =
                 personalTrainerRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RegraNegocioException("Personal não encontrado"));
+
+        return converterParaDTO(personalTrainer);
+    }
+
+    public PersonalTrainerResponseDTO buscarPorIdUsuario(Long id) throws RegraNegocioException {
+
+        PersonalTrainer personalTrainer =
+                personalTrainerRepository.findByUsuarioId(id)
+                        .orElseThrow(() ->
+                                new RegraNegocioException("Personal não encontrado"));
+
+        return converterParaDTO(personalTrainer);
+    }
+
+    public PersonalTrainerResponseDTO buscarPorEmail(UsuarioRequestFindByEmailDTO dto) throws RegraNegocioException {
+
+        PersonalTrainer personalTrainer =
+                personalTrainerRepository.findByUsuarioEmail(dto.email())
                         .orElseThrow(() ->
                                 new RegraNegocioException("Personal não encontrado"));
 

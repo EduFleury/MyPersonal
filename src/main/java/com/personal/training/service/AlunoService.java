@@ -1,7 +1,8 @@
 package com.personal.training.service;
 
-import com.personal.training.dto.AlunoRequestDTO;
-import com.personal.training.dto.AlunoResponseDTO;
+import com.personal.training.dto.Aluno.AlunoRequestDTO;
+import com.personal.training.dto.Aluno.AlunoResponseDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Aluno;
 import com.personal.training.model.Enum.TipoUsuario;
@@ -66,6 +67,33 @@ public class AlunoService {
                         new RegraNegocioException("Aluno não encontrado"));
 
         return converterParaDTO(aluno);
+    }
+
+    public AlunoResponseDTO buscarPorIdUsuario(Long id) throws RegraNegocioException {
+
+        Aluno aluno = alunoRepository.findByUsuarioId(id)
+                .orElseThrow(() ->
+                        new RegraNegocioException("Aluno não encontrado"));
+
+        return converterParaDTO(aluno);
+    }
+
+    public AlunoResponseDTO buscarPorEmailUsuario(UsuarioRequestFindByEmailDTO dto) throws RegraNegocioException {
+
+        Aluno aluno = alunoRepository.findByUsuarioEmail(dto.email())
+                .orElseThrow(() ->
+                        new RegraNegocioException("Aluno não encontrado"));
+
+        return converterParaDTO(aluno);
+    }
+
+    public List<AlunoResponseDTO> buscarPorPersonalId(Long personalId) {
+
+        List<Aluno> alunos = alunoRepository.findByPersonalId(personalId);
+
+        return alunos.stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
     public AlunoResponseDTO atualizar(

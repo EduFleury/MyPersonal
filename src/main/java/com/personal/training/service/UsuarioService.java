@@ -1,8 +1,8 @@
 package com.personal.training.service;
 
-import com.personal.training.dto.UsuarioRequestDTO;
-import com.personal.training.dto.UsuarioRequestFindByEmailDTO;
-import com.personal.training.dto.UsuarioResponseDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestDTO;
+import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
+import com.personal.training.dto.Usuario.UsuarioResponseDTO;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Usuario;
 import com.personal.training.repository.UsuarioRepository;

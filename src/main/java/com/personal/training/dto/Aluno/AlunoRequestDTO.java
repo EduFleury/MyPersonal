@@ -1,4 +1,4 @@
-package com.personal.training.dto;
+package com.personal.training.dto.Aluno;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
