@@ -8,6 +8,7 @@ import com.personal.training.service.AlunoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -74,5 +75,15 @@ public class AlunoController {
     ) throws RegraNegocioException {
 
         alunoService.deletar(id);
+    }
+
+    @GetMapping("/meus-alunos")
+    public List<AlunoResponseDTO> meusAlunos(
+            Authentication authentication
+    ) {
+
+        return alunoService.listarMeusAlunos(
+                authentication.getName()
+        );
     }
 }

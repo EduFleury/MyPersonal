@@ -96,6 +96,15 @@ public class AlunoService {
                 .toList();
     }
 
+    public List<AlunoResponseDTO> listarMeusAlunos(String email) {
+
+        return alunoRepository
+                .findByPersonalUsuarioEmail(email)
+                .stream()
+                .map(this::converterParaDTO)
+                .toList();
+    }
+
     public AlunoResponseDTO atualizar(
             Long id,
             AlunoRequestDTO dto
