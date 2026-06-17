@@ -17,9 +17,9 @@ public class ItemTreino {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer series;
+    private String series;
 
-    private Integer repeticoes;
+    private String repeticoes;
 
     private String carga;
 
