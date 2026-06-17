@@ -3,6 +3,7 @@ package com.personal.training.service;
 
 import com.personal.training.dto.Treino.TreinoRequestDTO;
 import com.personal.training.dto.Treino.TreinoResponseDTO;
+import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Aluno;
 import com.personal.training.model.PersonalTrainer;
 import com.personal.training.model.Treino;
@@ -24,10 +25,10 @@ public class TreinoService {
     private final AlunoRepository alunoRepository;
     private final PersonalTrainerRepository personalTrainerRepository;
 
-    public TreinoResponseDTO criar(TreinoRequestDTO dto) {
+    public TreinoResponseDTO criar(TreinoRequestDTO dto) throws RegraNegocioException {
 
         Aluno aluno = alunoRepository.findById(dto.alunoId())
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+                .orElseThrow(() -> new RegraNegocioException("Aluno não encontrado"));
 
         Treino treino = new Treino();
 
@@ -40,10 +41,10 @@ public class TreinoService {
         return toDTO(treino);
     }
 
-    public TreinoResponseDTO buscarPorId(Long id) {
+    public TreinoResponseDTO buscarPorId(Long id) throws RegraNegocioException {
 
         Treino treino = treinoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+                .orElseThrow(() -> new RegraNegocioException("Treino não encontrado"));
 
         return toDTO(treino);
     }
@@ -81,10 +82,10 @@ public class TreinoService {
                 .toList();
     }
 
-    public TreinoResponseDTO atualizar(Long id, TreinoRequestDTO dto) {
+    public TreinoResponseDTO atualizar(Long id, TreinoRequestDTO dto) throws RegraNegocioException {
 
         Treino treino = treinoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+                .orElseThrow(() -> new RegraNegocioException("Treino não encontrado"));
 
         treino.setNome(dto.nome());
         treino.setObservacoes(dto.observacoes());

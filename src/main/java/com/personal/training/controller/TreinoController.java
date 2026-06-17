@@ -2,6 +2,7 @@ package com.personal.training.controller;
 
 import com.personal.training.dto.Treino.TreinoRequestDTO;
 import com.personal.training.dto.Treino.TreinoResponseDTO;
+import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.service.TreinoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class TreinoController {
     @PostMapping
     public TreinoResponseDTO criar(
             @RequestBody @Valid TreinoRequestDTO dto
-    ) {
+    ) throws RegraNegocioException {
         return treinoService.criar(dto);
     }
 
@@ -32,7 +33,7 @@ public class TreinoController {
     @GetMapping("/{id}")
     public TreinoResponseDTO buscarPorId(
             @PathVariable Long id
-    ) {
+    ) throws RegraNegocioException {
         return treinoService.buscarPorId(id);
     }
 
@@ -61,7 +62,7 @@ public class TreinoController {
     public TreinoResponseDTO atualizar(
             @PathVariable Long id,
             @RequestBody @Valid TreinoRequestDTO dto
-    ) {
+    ) throws RegraNegocioException {
         return treinoService.atualizar(id, dto);
     }
 

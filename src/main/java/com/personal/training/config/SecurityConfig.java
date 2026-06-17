@@ -70,6 +70,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/treinos/**")
                         .hasAnyRole("ADMIN", "PERSONAL")
 
+                        // Exercícios
+
+                        .requestMatchers(HttpMethod.POST, "/exercicios")
+                        .hasAnyRole("ADMIN", "PERSONAL")
+
+                        .requestMatchers(HttpMethod.GET, "/exercicios")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
+
+                        .requestMatchers(HttpMethod.GET, "/exercicios/**")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
+
+                        .requestMatchers(HttpMethod.PUT, "/exercicios/**")
+                        .hasAnyRole("ADMIN", "PERSONAL")
+
+                        .requestMatchers(HttpMethod.DELETE, "/exercicios/**")
+                        .hasAnyRole("ADMIN", "PERSONAL")
+
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
