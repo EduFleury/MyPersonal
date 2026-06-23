@@ -2,6 +2,7 @@ package com.personal.training.service;
 
 import com.personal.training.dto.Exercicio.ExercicioRequestDTO;
 import com.personal.training.dto.Exercicio.ExercicioResponseDTO;
+import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Exercicio;
 import com.personal.training.repository.ExercicioRepository;
@@ -37,11 +38,11 @@ public class ExercicioService {
                 .toList();
     }
 
-    public ExercicioResponseDTO buscarPorId(Long id) throws RegraNegocioException {
+    public ExercicioResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {
 
         Exercicio exercicio = exercicioRepository.findById(id)
                 .orElseThrow(() ->
-                        new RegraNegocioException("Exercício não encontrado"));
+                        new RecursoNaoEncontradoException("Exercício não encontrado"));
 
         return toDTO(exercicio);
     }
@@ -49,11 +50,11 @@ public class ExercicioService {
     public ExercicioResponseDTO atualizar(
             Long id,
             ExercicioRequestDTO dto
-    ) throws RegraNegocioException {
+    ) throws RecursoNaoEncontradoException {
 
         Exercicio exercicio = exercicioRepository.findById(id)
                 .orElseThrow(() ->
-                        new RegraNegocioException("Exercício não encontrado"));
+                        new RecursoNaoEncontradoException("Exercício não encontrado"));
 
         exercicio.setNome(dto.nome());
         exercicio.setGrupoMuscular(dto.grupoMuscular());
@@ -64,11 +65,11 @@ public class ExercicioService {
         return toDTO(exercicio);
     }
 
-    public void excluir(Long id) throws RegraNegocioException {
+    public void excluir(Long id) throws RecursoNaoEncontradoException {
 
         Exercicio exercicio = exercicioRepository.findById(id)
                 .orElseThrow(() ->
-                        new RegraNegocioException("Exercício não encontrado"));
+                        new RecursoNaoEncontradoException("Exercício não encontrado"));
 
         exercicioRepository.delete(exercicio);
     }

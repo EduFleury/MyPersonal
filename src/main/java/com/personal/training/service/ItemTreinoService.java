@@ -2,6 +2,7 @@ package com.personal.training.service;
 
 import com.personal.training.dto.ItemTreino.ItemTreinoRequestDTO;
 import com.personal.training.dto.ItemTreino.ItemTreinoResponseDTO;
+import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.model.Exercicio;
 import com.personal.training.model.ItemTreino;
 import com.personal.training.model.Treino;
@@ -21,13 +22,13 @@ public class ItemTreinoService {
     private final TreinoRepository treinoRepository;
     private final ExercicioRepository exercicioRepository;
 
-    public ItemTreinoResponseDTO criar(ItemTreinoRequestDTO dto) {
+    public ItemTreinoResponseDTO criar(ItemTreinoRequestDTO dto) throws RecursoNaoEncontradoException{
 
         Treino treino = treinoRepository.findById(dto.treinoId())
-                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Treino não encontrado"));
 
         Exercicio exercicio = exercicioRepository.findById(dto.exercicioId())
-                .orElseThrow(() -> new RuntimeException("Exercício não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado"));
 
         ItemTreino item = new ItemTreino();
 
@@ -51,10 +52,10 @@ public class ItemTreinoService {
                 .toList();
     }
 
-    public ItemTreinoResponseDTO buscarPorId(Long id) {
+    public ItemTreinoResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException{
 
         ItemTreino item = itemTreinoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Item treino não encontrado"));
 
         return toDTO(item);
     }
@@ -62,16 +63,16 @@ public class ItemTreinoService {
     public ItemTreinoResponseDTO atualizar(
             Long id,
             ItemTreinoRequestDTO dto
-    ) {
+    ) throws RecursoNaoEncontradoException{
 
         ItemTreino item = itemTreinoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Item treino não encontrado"));
 
         Treino treino = treinoRepository.findById(dto.treinoId())
-                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Treino não encontrado"));
 
         Exercicio exercicio = exercicioRepository.findById(dto.exercicioId())
-                .orElseThrow(() -> new RuntimeException("Exercício não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado"));
 
         item.setSeries(dto.series());
         item.setRepeticoes(dto.repeticoes());
@@ -85,10 +86,10 @@ public class ItemTreinoService {
         return toDTO(item);
     }
 
-    public void excluir(Long id) {
+    public void excluir(Long id) throws RecursoNaoEncontradoException{
 
         ItemTreino item = itemTreinoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Item treino não encontrado"));
 
         itemTreinoRepository.delete(item);
     }

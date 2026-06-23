@@ -1,6 +1,7 @@
 package com.personal.training.model;
 
 import com.personal.training.model.Enum.TipoUsuario;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

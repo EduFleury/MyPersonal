@@ -31,6 +31,15 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
+                        // Swagger
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/webjars/**"
+                        ).permitAll()
+
                         // Rotas públicas
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
@@ -104,7 +113,26 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/itens-treino/**")
                         .hasAnyRole("ADMIN", "PERSONAL")
 
+                        // Execucao Treino
+
+                        .requestMatchers(HttpMethod.POST, "/execucoes-treino")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
+
+                        .requestMatchers(HttpMethod.GET, "/execucoes-treino")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
+
+                        .requestMatchers(HttpMethod.GET, "/execucoes-treino/**")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
+
+                        .requestMatchers(HttpMethod.PUT, "/execucoes-treino/**")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
+
+                        .requestMatchers(HttpMethod.DELETE, "/execucoes-treino/**")
+                        .hasAnyRole("ADMIN", "PERSONAL", "ALUNO")
                         .anyRequest().authenticated()
+
+
+
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

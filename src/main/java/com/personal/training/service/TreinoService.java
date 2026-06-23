@@ -3,6 +3,7 @@ package com.personal.training.service;
 
 import com.personal.training.dto.Treino.TreinoRequestDTO;
 import com.personal.training.dto.Treino.TreinoResponseDTO;
+import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Aluno;
 import com.personal.training.model.PersonalTrainer;
@@ -25,10 +26,10 @@ public class TreinoService {
     private final AlunoRepository alunoRepository;
     private final PersonalTrainerRepository personalTrainerRepository;
 
-    public TreinoResponseDTO criar(TreinoRequestDTO dto) throws RegraNegocioException {
+    public TreinoResponseDTO criar(TreinoRequestDTO dto) throws RecursoNaoEncontradoException {
 
         Aluno aluno = alunoRepository.findById(dto.alunoId())
-                .orElseThrow(() -> new RegraNegocioException("Aluno não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Aluno não encontrado"));
 
         Treino treino = new Treino();
 
@@ -41,10 +42,10 @@ public class TreinoService {
         return toDTO(treino);
     }
 
-    public TreinoResponseDTO buscarPorId(Long id) throws RegraNegocioException {
+    public TreinoResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {
 
         Treino treino = treinoRepository.findById(id)
-                .orElseThrow(() -> new RegraNegocioException("Treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Treino não encontrado"));
 
         return toDTO(treino);
     }
@@ -82,10 +83,10 @@ public class TreinoService {
                 .toList();
     }
 
-    public TreinoResponseDTO atualizar(Long id, TreinoRequestDTO dto) throws RegraNegocioException {
+    public TreinoResponseDTO atualizar(Long id, TreinoRequestDTO dto) throws RecursoNaoEncontradoException {
 
         Treino treino = treinoRepository.findById(id)
-                .orElseThrow(() -> new RegraNegocioException("Treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Treino não encontrado"));
 
         treino.setNome(dto.nome());
         treino.setObservacoes(dto.observacoes());
@@ -95,7 +96,10 @@ public class TreinoService {
         return toDTO(treino);
     }
 
-    public void excluir(Long id) {
+    public void excluir(Long id) throws RecursoNaoEncontradoException{
+
+        Treino treino = treinoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Treino não encontrado"));
 
         treinoRepository.deleteById(id);
     }
@@ -110,20 +114,15 @@ public class TreinoService {
         );
     }
 
-    public List<TreinoResponseDTO> listarPorPersonalLogado(String email) {
+    public List<TreinoResponseDTO> listarPorPersonalLogado(String email) throws RecursoNaoEncontradoException{
 
-        Optional<PersonalTrainer> usuario = personalTrainerRepository.findByUsuarioEmail(email);
+        PersonalTrainer personal = personalTrainerRepository.findByUsuarioEmail(email)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Personal Trainer não encontrado"));
 
-        if(!usuario.isEmpty()){
-
-            Usuario usuario1 = usuario.get().getUsuario();
-
-            return treinoRepository.findByAlunoPersonalId(usuario1.getId())
-                    .stream()
-                    .map(this::toDTO)
-                    .toList();
-        }
-
-        return List.of();
+        return treinoRepository.findByAlunoPersonalId(personal.getId())
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 }

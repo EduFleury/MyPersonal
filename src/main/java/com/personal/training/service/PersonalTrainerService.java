@@ -3,6 +3,7 @@ package com.personal.training.service;
 import com.personal.training.dto.Personal.PersonalTrainerRequestDTO;
 import com.personal.training.dto.Personal.PersonalTrainerResponseDTO;
 import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
+import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Enum.TipoUsuario;
 import com.personal.training.model.PersonalTrainer;
@@ -21,10 +22,10 @@ public class PersonalTrainerService {
     private final PersonalTrainerRepository personalTrainerRepository;
     private final UsuarioRepository usuarioRepository;
 
-    public PersonalTrainerResponseDTO criar(PersonalTrainerRequestDTO dto) throws RegraNegocioException {
+    public PersonalTrainerResponseDTO criar(PersonalTrainerRequestDTO dto) throws RegraNegocioException, RecursoNaoEncontradoException {
 
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
-                .orElseThrow(() -> new RegraNegocioException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         if(usuario.getTipo().equals(TipoUsuario.ALUNO)){
             throw new RegraNegocioException("Usuário tipo ALUNO não pode ser um PERSONAL");
@@ -49,32 +50,32 @@ public class PersonalTrainerService {
                 .toList();
     }
 
-    public PersonalTrainerResponseDTO buscarPorId(Long id) throws RegraNegocioException {
+    public PersonalTrainerResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {
 
         PersonalTrainer personalTrainer =
                 personalTrainerRepository.findById(id)
                         .orElseThrow(() ->
-                                new RegraNegocioException("Personal não encontrado"));
+                                new RecursoNaoEncontradoException("Personal não encontrado"));
 
         return converterParaDTO(personalTrainer);
     }
 
-    public PersonalTrainerResponseDTO buscarPorIdUsuario(Long id) throws RegraNegocioException {
+    public PersonalTrainerResponseDTO buscarPorIdUsuario(Long id) throws RecursoNaoEncontradoException {
 
         PersonalTrainer personalTrainer =
                 personalTrainerRepository.findByUsuarioId(id)
                         .orElseThrow(() ->
-                                new RegraNegocioException("Personal não encontrado"));
+                                new RecursoNaoEncontradoException("Personal não encontrado"));
 
         return converterParaDTO(personalTrainer);
     }
 
-    public PersonalTrainerResponseDTO buscarPorEmail(UsuarioRequestFindByEmailDTO dto) throws RegraNegocioException {
+    public PersonalTrainerResponseDTO buscarPorEmail(UsuarioRequestFindByEmailDTO dto) throws RecursoNaoEncontradoException {
 
         PersonalTrainer personalTrainer =
                 personalTrainerRepository.findByUsuarioEmail(dto.email())
                         .orElseThrow(() ->
-                                new RegraNegocioException("Personal não encontrado"));
+                                new RecursoNaoEncontradoException("Personal não encontrado"));
 
         return converterParaDTO(personalTrainer);
     }
@@ -82,16 +83,16 @@ public class PersonalTrainerService {
     public PersonalTrainerResponseDTO atualizar(
             Long id,
             PersonalTrainerRequestDTO dto
-    ) throws RegraNegocioException {
+    ) throws RecursoNaoEncontradoException {
 
         PersonalTrainer personalTrainer =
                 personalTrainerRepository.findById(id)
                         .orElseThrow(() ->
-                                new RegraNegocioException("Personal não encontrado"));
+                                new RecursoNaoEncontradoException("Personal não encontrado"));
 
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() ->
-                        new RegraNegocioException("Usuário não encontrado"));
+                        new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         personalTrainer.setTelefone(dto.telefone());
         personalTrainer.setUsuario(usuario);
@@ -102,12 +103,12 @@ public class PersonalTrainerService {
         return converterParaDTO(personalAtualizado);
     }
 
-    public void deletar(Long id) throws RegraNegocioException {
+    public void deletar(Long id) throws RecursoNaoEncontradoException {
 
         PersonalTrainer personalTrainer =
                 personalTrainerRepository.findById(id)
                         .orElseThrow(() ->
-                                new RegraNegocioException("Personal não encontrado"));
+                                new RecursoNaoEncontradoException("Personal não encontrado"));
 
         personalTrainerRepository.delete(personalTrainer);
     }

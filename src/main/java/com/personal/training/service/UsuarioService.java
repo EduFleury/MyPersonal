@@ -3,6 +3,7 @@ package com.personal.training.service;
 import com.personal.training.dto.Usuario.UsuarioRequestDTO;
 import com.personal.training.dto.Usuario.UsuarioRequestFindByEmailDTO;
 import com.personal.training.dto.Usuario.UsuarioResponseDTO;
+import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Usuario;
 import com.personal.training.repository.UsuarioRepository;
@@ -19,10 +20,10 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UsuarioResponseDTO criar(UsuarioRequestDTO dto) throws RegraNegocioException {
+    public UsuarioResponseDTO criar(UsuarioRequestDTO dto) throws RecursoNaoEncontradoException {
 
         if (usuarioRepository.existsByEmail(dto.email())) {
-            throw new RegraNegocioException("Email já cadastrado");
+            throw new RecursoNaoEncontradoException("Email já cadastrado");
         }
 
         Usuario usuario = new Usuario();
@@ -45,25 +46,25 @@ public class UsuarioService {
                 .toList();
     }
 
-    public UsuarioResponseDTO buscarPorId(Long id) throws RegraNegocioException {
+    public UsuarioResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RegraNegocioException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         return converterParaDTO(usuario);
     }
 
-    public UsuarioResponseDTO buscarPorEmail(UsuarioRequestFindByEmailDTO dto) throws RegraNegocioException {
+    public UsuarioResponseDTO buscarPorEmail(UsuarioRequestFindByEmailDTO dto) throws RecursoNaoEncontradoException {
         Usuario usuario = usuarioRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new RegraNegocioException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         return converterParaDTO(usuario);
     }
 
-    public UsuarioResponseDTO atualizar(Long id, UsuarioRequestDTO dto) throws RegraNegocioException {
+    public UsuarioResponseDTO atualizar(Long id, UsuarioRequestDTO dto) throws RecursoNaoEncontradoException {
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RegraNegocioException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
@@ -78,10 +79,10 @@ public class UsuarioService {
         return converterParaDTO(usuarioAtualizado);
     }
 
-    public void deletar(Long id) throws RegraNegocioException {
+    public void deletar(Long id) throws RecursoNaoEncontradoException {
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RegraNegocioException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         usuarioRepository.delete(usuario);
     }

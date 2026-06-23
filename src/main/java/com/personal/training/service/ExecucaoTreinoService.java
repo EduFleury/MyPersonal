@@ -2,6 +2,7 @@ package com.personal.training.service;
 
 import com.personal.training.dto.ExecucaoTreino.ExecucaoTreinoRequestDTO;
 import com.personal.training.dto.ExecucaoTreino.ExecucaoTreinoResponseDTO;
+import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Aluno;
 import com.personal.training.model.ExecucaoTreino;
@@ -25,13 +26,13 @@ public class ExecucaoTreinoService {
 
     public ExecucaoTreinoResponseDTO criar(
             ExecucaoTreinoRequestDTO dto
-    ) throws RegraNegocioException {
+    ) throws RecursoNaoEncontradoException {
 
         Aluno aluno = alunoRepository.findById(dto.alunoId())
-                .orElseThrow(() -> new RegraNegocioException("Aluno não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Aluno não encontrado"));
 
         Treino treino = treinoRepository.findById(dto.treinoId())
-                .orElseThrow(() -> new RegraNegocioException("Treino não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Treino não encontrado"));
 
         ExecucaoTreino execucao = new ExecucaoTreino();
 
@@ -61,10 +62,10 @@ public class ExecucaoTreinoService {
                 .toList();
     }
 
-    public ExecucaoTreinoResponseDTO buscarPorId(Long id) throws RegraNegocioException {
+    public ExecucaoTreinoResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {
 
         ExecucaoTreino execucao = execucaoRepository.findById(id)
-                .orElseThrow(() -> new RegraNegocioException("Execução não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Execução não encontrada"));
 
         return toDTO(execucao);
     }
@@ -72,11 +73,11 @@ public class ExecucaoTreinoService {
     public ExecucaoTreinoResponseDTO atualizar(
             Long id,
             ExecucaoTreinoRequestDTO dto
-    ) throws RegraNegocioException {
+    ) throws RecursoNaoEncontradoException {
 
         ExecucaoTreino execucao = execucaoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RegraNegocioException("Execução não encontrada"));
+                        new RecursoNaoEncontradoException("Execução não encontrada"));
 
         execucao.setObservacoes(dto.observacoes());
 
@@ -87,11 +88,11 @@ public class ExecucaoTreinoService {
     }
 
     public ExecucaoTreinoResponseDTO concluir(Long id)
-            throws RegraNegocioException {
+            throws RecursoNaoEncontradoException {
 
         ExecucaoTreino execucao = execucaoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RegraNegocioException("Execução não encontrada"));
+                        new RecursoNaoEncontradoException("Execução não encontrada"));
 
         execucao.setConcluido(true);
         execucao.setDataFim(LocalDateTime.now());
@@ -101,7 +102,11 @@ public class ExecucaoTreinoService {
         return toDTO(execucao);
     }
 
-    public void excluir(Long id) {
+    public void excluir(Long id) throws RecursoNaoEncontradoException{
+
+        ExecucaoTreino execucao = execucaoRepository.findById(id)
+                .orElseThrow(() ->
+                        new RecursoNaoEncontradoException("Execução não encontrada"));
 
         execucaoRepository.deleteById(id);
     }
