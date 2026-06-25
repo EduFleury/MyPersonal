@@ -13,6 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -48,14 +51,13 @@ public class AlunoController {
     @GetMapping
     @Operation(
             summary = "Buscar todos os alunos",
-            description = "Retorna os dados de todos os alunos"
+            description = "Retorna os dados de todos os alunos de forma paginada"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Aluno encontrado")
+            @ApiResponse(responseCode = "200", description = "Lista de alunos retornada com sucesso")
     })
-    public List<AlunoResponseDTO> listarTodos() {
-
-        return alunoService.listarTodos();
+    public Page<AlunoResponseDTO> listarTodos(@PageableDefault(size = 10, page = 0) Pageable pageable) {
+        return alunoService.listarTodos(pageable);
     }
 
     @GetMapping("/{id}")
@@ -148,18 +150,20 @@ public class AlunoController {
     @GetMapping("/meus-alunos")
     @Operation(
             summary = "Listar meus alunos",
-            description = "Retorna todos os alunos vinculados ao personal autenticado"
+            description = "Retorna todos os alunos vinculados ao personal autenticado de forma paginada"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
             @ApiResponse(responseCode = "403", description = "Usuário sem permissão")
     })
-    public List<AlunoResponseDTO> meusAlunos(
+    public Page<AlunoResponseDTO> meusAlunos(
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
             Authentication authentication
     ) {
 
         return alunoService.listarMeusAlunos(
+                pageable,
                 authentication.getName()
         );
     }

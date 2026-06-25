@@ -10,6 +10,8 @@ import com.personal.training.repository.ExercicioRepository;
 import com.personal.training.repository.ItemTreinoRepository;
 import com.personal.training.repository.TreinoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,12 +46,10 @@ public class ItemTreinoService {
         return toDTO(item);
     }
 
-    public List<ItemTreinoResponseDTO> listar() {
+    public Page<ItemTreinoResponseDTO> listar(Pageable pageable) {
 
-        return itemTreinoRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return itemTreinoRepository.findAll(pageable)
+                .map(this::toDTO);
     }
 
     public ItemTreinoResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException{

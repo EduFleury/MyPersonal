@@ -2,14 +2,20 @@ package com.personal.training.service;
 
 import com.personal.training.dto.Exercicio.ExercicioRequestDTO;
 import com.personal.training.dto.Exercicio.ExercicioResponseDTO;
+import com.personal.training.dto.Usuario.UsuarioResponseDTO;
 import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.model.Exercicio;
+import com.personal.training.model.Usuario;
 import com.personal.training.repository.ExercicioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,23 +57,30 @@ class ExercicioServiceTest {
     @Test
     void deveListarTodosOsExercicios() {
         Exercicio exercicio = criarExercicioMock(1L, "Agachamento", "PERNAS");
-        when(exercicioRepository.findAll()).thenReturn(List.of(exercicio));
 
-        List<ExercicioResponseDTO> resultado = exercicioService.listar();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Exercicio> paginaDeExercicios = new PageImpl<>(List.of(exercicio));
+        when(exercicioRepository.findAll(pageable)).thenReturn(paginaDeExercicios);
+
+        Page<ExercicioResponseDTO> resultado = exercicioService.listar(pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Agachamento", resultado.get(0).nome());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("Agachamento", resultado.getContent().get(0).nome());
     }
 
     @Test
     void deveRetornarListaVaziaQuandoNaoHouverExercicios() {
-        when(exercicioRepository.findAll()).thenReturn(Collections.emptyList());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Exercicio> paginaDeExercicios = new PageImpl<>(Collections.emptyList());
 
-        List<ExercicioResponseDTO> resultado = exercicioService.listar();
+        when(exercicioRepository.findAll(pageable)).thenReturn(paginaDeExercicios);
+
+        Page<ExercicioResponseDTO> resultado = exercicioService.listar(pageable);
 
         assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
+        assertEquals(0, resultado.getTotalElements());
+        assertTrue(resultado.getContent().isEmpty());
     }
 
     @Test

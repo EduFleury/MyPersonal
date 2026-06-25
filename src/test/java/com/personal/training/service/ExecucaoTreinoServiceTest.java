@@ -16,6 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -119,23 +123,31 @@ class ExecucaoTreinoServiceTest {
     @Test
     void deveListarTodasAsExecucoes() {
         ExecucaoTreino execucao = criarExecucaoMock(10L, 1L, 2L);
-        when(execucaoRepository.findAll()).thenReturn(List.of(execucao));
 
-        List<ExecucaoTreinoResponseDTO> resultado = execucaoTreinoService.listar();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ExecucaoTreino> paginaDeExecucoes = new PageImpl<>(List.of(execucao));
+        when(execucaoRepository.findAll(pageable)).thenReturn(paginaDeExecucoes);
+
+        Page<ExecucaoTreinoResponseDTO> resultado = execucaoTreinoService.listar(pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Treino A", resultado.get(0).nomeTreino());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("Treino A", resultado.getContent().get(0).nomeTreino());
     }
 
     @Test
     void deveRetornarListaVaziaQuandoNaoHouverExecucoes() {
-        when(execucaoRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<ExecucaoTreinoResponseDTO> resultado = execucaoTreinoService.listar();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ExecucaoTreino> paginaDeExecucoes = new PageImpl<>(Collections.emptyList());
+
+        when(execucaoRepository.findAll(pageable)).thenReturn(paginaDeExecucoes);
+
+        Page<ExecucaoTreinoResponseDTO> resultado = execucaoTreinoService.listar(pageable);
 
         assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
+        assertEquals(0, resultado.getTotalElements());
+        assertTrue(resultado.getContent().isEmpty());
     }
 
     @Test

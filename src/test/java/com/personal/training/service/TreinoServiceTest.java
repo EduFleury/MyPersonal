@@ -16,6 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
@@ -94,50 +98,63 @@ class TreinoServiceTest {
 
     @Test
     void deveListarTodosOsTreinos() {
+        Pageable pageable = PageRequest.of(0, 10);
         Treino treino = criarTreinoMock(10L, "Treino C", 1L);
-        when(treinoRepository.findAll()).thenReturn(List.of(treino));
+        Page<Treino> paginaDeTreinos = new PageImpl<>(List.of(treino));
 
-        List<TreinoResponseDTO> resultado = treinoService.listar();
+        when(treinoRepository.findAll(pageable)).thenReturn(paginaDeTreinos);
+
+        Page<TreinoResponseDTO> resultado = treinoService.listar(pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(1, resultado.getContent().size());
     }
 
     @Test
     void deveListarPorAluno() {
         Long alunoId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
         Treino treino = criarTreinoMock(10L, "Treino Aluno", alunoId);
-        when(treinoRepository.findByAlunoId(alunoId)).thenReturn(List.of(treino));
+        Page<Treino> paginaDeTreinos = new PageImpl<>(List.of(treino));
 
-        List<TreinoResponseDTO> resultado = treinoService.listarPorAluno(alunoId);
+        when(treinoRepository.findByAlunoId(alunoId, pageable)).thenReturn(paginaDeTreinos);
+
+        Page<TreinoResponseDTO> resultado = treinoService.listarPorAluno(alunoId, pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals(alunoId, resultado.get(0).alunoId());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(alunoId, resultado.getContent().get(0).alunoId());
     }
 
     @Test
     void deveListarPorPersonal() {
         Long personalId = 2L;
+        Pageable pageable = PageRequest.of(0, 10);
         Treino treino = criarTreinoMock(10L, "Treino Personal", 1L);
-        when(treinoRepository.findByAlunoPersonalId(personalId)).thenReturn(List.of(treino));
+        Page<Treino> paginaDeTreinos = new PageImpl<>(List.of(treino));
 
-        List<TreinoResponseDTO> resultado = treinoService.listarPorPersonal(personalId);
+        when(treinoRepository.findByAlunoPersonalId(personalId, pageable)).thenReturn(paginaDeTreinos);
+
+        Page<TreinoResponseDTO> resultado = treinoService.listarPorPersonal(personalId, pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.getTotalElements());
     }
 
     @Test
-    void deveListarMeusTreinosPorEmailDoAluno() {
+    void deveListarMeusTreinosPorEmailDoAluno() throws RecursoNaoEncontradoException {
         String email = "aluno@email.com";
+        Pageable pageable = PageRequest.of(0, 10);
         Treino treino = criarTreinoMock(10L, "Treino Meu", 1L);
-        when(treinoRepository.findByAlunoUsuarioEmail(email)).thenReturn(List.of(treino));
+        Page<Treino> paginaDeTreinos = new PageImpl<>(List.of(treino));
 
-        List<TreinoResponseDTO> resultado = treinoService.listarMeusTreinos(email);
+        when(treinoRepository.findByAlunoUsuarioEmail(email, pageable)).thenReturn(paginaDeTreinos);
+
+        Page<TreinoResponseDTO> resultado = treinoService.listarMeusTreinos(email, pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.getTotalElements());
     }
 
     @Test
@@ -191,6 +208,7 @@ class TreinoServiceTest {
     @Test
     void deveListarPorPersonalLogadoComSucesso() throws RecursoNaoEncontradoException {
         String email = "personal@email.com";
+        Pageable pageable = PageRequest.of(0, 10);
 
         Usuario usuarioPersonal = new Usuario();
         usuarioPersonal.setId(5L);
@@ -201,26 +219,27 @@ class TreinoServiceTest {
         personal.setUsuario(usuarioPersonal);
 
         Treino treino = criarTreinoMock(10L, "Treino Personal Logado", 1L);
+        Page<Treino> paginaDeTreinos = new PageImpl<>(List.of(treino));
 
         when(personalTrainerRepository.findByUsuarioEmail(email)).thenReturn(Optional.of(personal));
-        when(treinoRepository.findByAlunoPersonalId(2L)).thenReturn(List.of(treino));
+        when(treinoRepository.findByAlunoPersonalId(2L, pageable)).thenReturn(paginaDeTreinos);
 
-        List<TreinoResponseDTO> resultado = treinoService.listarPorPersonalLogado(email);
+        Page<TreinoResponseDTO> resultado = treinoService.listarPorPersonalLogado(email, pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.getTotalElements());
         verify(personalTrainerRepository, times(1)).findByUsuarioEmail(email);
     }
 
     @Test
     void deveLancarExcecaoAoListarPorPersonalLogadoSeEmailNaoExistir() {
         String email = "naoexiste@email.com";
+        Pageable pageable = PageRequest.of(0, 10);
         when(personalTrainerRepository.findByUsuarioEmail(email)).thenReturn(Optional.empty());
 
-        assertThrows(RecursoNaoEncontradoException.class, () -> treinoService.listarPorPersonalLogado(email));
-        verify(treinoRepository, times(0)).findByAlunoPersonalId(any());
+        assertThrows(RecursoNaoEncontradoException.class, () -> treinoService.listarPorPersonalLogado(email, pageable));
+        verify(treinoRepository, times(0)).findByAlunoPersonalId(any(), any());
     }
-
 
     private Aluno criarAlunoMock(Long id) {
         Usuario usuario = new Usuario();

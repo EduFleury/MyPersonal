@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,14 +55,14 @@ public class PersonalTrainerController {
     @GetMapping
     @Operation(
             summary = "Listar personal trainers",
-            description = "Retorna todos os personal trainers cadastrados"
+            description = "Retorna todos os personal trainers cadastrados de forma Paginada"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     })
-    public List<PersonalTrainerResponseDTO> listarTodos() {
+    public Page<PersonalTrainerResponseDTO> listarTodos(@PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        return personalTrainerService.listarTodos();
+        return personalTrainerService.listarTodos(pageable);
     }
 
     @GetMapping("/{id}")

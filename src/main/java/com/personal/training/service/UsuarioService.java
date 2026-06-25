@@ -8,6 +8,8 @@ import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Usuario;
 import com.personal.training.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +40,10 @@ public class UsuarioService {
         return converterParaDTO(usuarioSalvo);
     }
 
-    public List<UsuarioResponseDTO> listarTodos() {
+    public Page<UsuarioResponseDTO> listarTodos(Pageable pageable) {
 
-        return usuarioRepository.findAll()
-                .stream()
-                .map(this::converterParaDTO)
-                .toList();
+        return usuarioRepository.findAll(pageable)
+                .map(this::converterParaDTO);
     }
 
     public UsuarioResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {

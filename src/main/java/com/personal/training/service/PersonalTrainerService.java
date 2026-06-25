@@ -11,6 +11,8 @@ import com.personal.training.model.Usuario;
 import com.personal.training.repository.PersonalTrainerRepository;
 import com.personal.training.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,12 +44,10 @@ public class PersonalTrainerService {
         return converterParaDTO(personalSalvo);
     }
 
-    public List<PersonalTrainerResponseDTO> listarTodos() {
+    public Page<PersonalTrainerResponseDTO> listarTodos(Pageable pageable) {
 
-        return personalTrainerRepository.findAll()
-                .stream()
-                .map(this::converterParaDTO)
-                .toList();
+        return personalTrainerRepository.findAll(pageable)
+                .map(this::converterParaDTO);
     }
 
     public PersonalTrainerResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {

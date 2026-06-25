@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -46,13 +49,13 @@ public class TreinoController {
     @GetMapping
     @Operation(
             summary = "Listar treinos",
-            description = "Retorna todos os treinos cadastrados"
+            description = "Retorna todos os treinos cadastrados de forma Paginada"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     })
-    public List<TreinoResponseDTO> listar() {
-        return treinoService.listar();
+    public Page<TreinoResponseDTO> listar(@PageableDefault(size = 10, page = 0) Pageable pageable) {
+        return treinoService.listar(pageable);
     }
 
     @GetMapping("/{id}")
@@ -74,17 +77,18 @@ public class TreinoController {
     @GetMapping("/aluno/{alunoId}")
     @Operation(
             summary = "Listar treinos por aluno",
-            description = "Retorna todos os treinos vinculados a um aluno específico"
+            description = "Retorna todos os treinos vinculados a um aluno específico de forma Paginada"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
     })
-    public List<TreinoResponseDTO> listarPorAluno(
+    public Page<TreinoResponseDTO> listarPorAluno(
             @Parameter(description = "ID do aluno", example = "1")
-            @PathVariable Long alunoId
+            @PathVariable Long alunoId,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
-        return treinoService.listarPorAluno(alunoId);
+        return treinoService.listarPorAluno(alunoId, pageable);
     }
 
     @GetMapping("/personal/{personalId}")
@@ -96,27 +100,29 @@ public class TreinoController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Personal trainer não encontrado")
     })
-    public List<TreinoResponseDTO> listarPorPersonal(
+    public Page<TreinoResponseDTO> listarPorPersonal(
             @Parameter(description = "ID do personal trainer", example = "1")
-            @PathVariable Long personalId
+            @PathVariable Long personalId,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
-        return treinoService.listarPorPersonal(personalId);
+        return treinoService.listarPorPersonal(personalId, pageable);
     }
 
     @GetMapping("/meus-treinos/personal")
     @Operation(
             summary = "Listar meus treinos como personal",
-            description = "Retorna todos os treinos cadastrados pelo personal trainer autenticado"
+            description = "Retorna todos os treinos cadastrados pelo personal trainer autenticado de forma Paginada"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
             @ApiResponse(responseCode = "403", description = "Usuário sem permissão")
     })
-    public List<TreinoResponseDTO> listarPorPersonal(
-            Authentication authentication
+    public Page<TreinoResponseDTO> listarPorPersonal(
+            Authentication authentication,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
-        return treinoService.listarPorPersonalLogado(authentication.getName());
+        return treinoService.listarPorPersonalLogado(authentication.getName(), pageable);
     }
 
     @PutMapping("/{id}")
@@ -157,7 +163,7 @@ public class TreinoController {
     @GetMapping("/meus-treinos")
     @Operation(
             summary = "Listar meus treinos",
-            description = "Retorna todos os treinos do aluno autenticado"
+            description = "Retorna todos os treinos do aluno autenticado de forma Paginada"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
@@ -165,12 +171,10 @@ public class TreinoController {
             @ApiResponse(responseCode = "403", description = "Usuário sem permissão"),
             @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
     })
-    public List<TreinoResponseDTO> meusTreinos(
-            Authentication authentication
+    public Page<TreinoResponseDTO> meusTreinos(
+            Authentication authentication,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
     ) throws RecursoNaoEncontradoException{
-
-        return treinoService.listarMeusTreinos(
-                authentication.getName()
-        );
+        return treinoService.listarMeusTreinos(authentication.getName(), pageable);
     }
 }

@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
@@ -82,20 +86,28 @@ class PersonalTrainerServiceTest {
     @Test
     void deveListarTodosOsPersonals() {
         PersonalTrainer personal = criarPersonalMock(10L, "62999999999");
-        when(personalTrainerRepository.findAll()).thenReturn(List.of(personal));
 
-        List<PersonalTrainerResponseDTO> resultado = personalTrainerService.listarTodos();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<PersonalTrainer> paginaDePersonal = new PageImpl<>(List.of(personal));
+        when(personalTrainerRepository.findAll(pageable)).thenReturn(paginaDePersonal);
+
+
+        Page<PersonalTrainerResponseDTO> resultado = personalTrainerService.listarTodos(pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("62999999999", resultado.get(0).telefone());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("62999999999", resultado.getContent().get(0).telefone());
     }
 
     @Test
     void deveRetornarListaVaziaQuandoNaoHouverPersonals() {
-        when(personalTrainerRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<PersonalTrainerResponseDTO> resultado = personalTrainerService.listarTodos();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<PersonalTrainer> paginaDePersonalVazia = new PageImpl<>(Collections.emptyList());
+
+        when(personalTrainerRepository.findAll(pageable)).thenReturn(paginaDePersonalVazia);
+
+        Page<PersonalTrainerResponseDTO> resultado = personalTrainerService.listarTodos(pageable);
 
         assertNotNull(resultado);
         assertTrue(resultado.isEmpty());

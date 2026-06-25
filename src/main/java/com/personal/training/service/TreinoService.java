@@ -13,6 +13,8 @@ import com.personal.training.repository.AlunoRepository;
 import com.personal.training.repository.PersonalTrainerRepository;
 import com.personal.training.repository.TreinoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,37 +52,25 @@ public class TreinoService {
         return toDTO(treino);
     }
 
-    public List<TreinoResponseDTO> listar() {
+    public Page<TreinoResponseDTO> listar(Pageable pageable) {
 
-        return treinoRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return treinoRepository.findAll(pageable)
+                .map(this::toDTO);
     }
 
-    public List<TreinoResponseDTO> listarPorAluno(Long alunoId) {
-
-        return treinoRepository.findByAlunoId(alunoId)
-                .stream()
-                .map(this::toDTO)
-                .toList();
+    public Page<TreinoResponseDTO> listarPorAluno(Long alunoId, Pageable pageable) {
+        return treinoRepository.findByAlunoId(alunoId, pageable)
+                .map(this::toDTO);
     }
 
-    public List<TreinoResponseDTO> listarPorPersonal(Long personalId) {
-
-        return treinoRepository.findByAlunoPersonalId(personalId)
-                .stream()
-                .map(this::toDTO)
-                .toList();
+    public Page<TreinoResponseDTO> listarPorPersonal(Long personalId, Pageable pageable) {
+        return treinoRepository.findByAlunoPersonalId(personalId, pageable)
+                .map(this::toDTO);
     }
 
-    public List<TreinoResponseDTO> listarMeusTreinos(String email) {
-
-        return treinoRepository
-                .findByAlunoUsuarioEmail(email)
-                .stream()
-                .map(this::toDTO)
-                .toList();
+    public Page<TreinoResponseDTO> listarMeusTreinos(String email, Pageable pageable) {
+        return treinoRepository.findByAlunoUsuarioEmail(email, pageable)
+                .map(this::toDTO);
     }
 
     public TreinoResponseDTO atualizar(Long id, TreinoRequestDTO dto) throws RecursoNaoEncontradoException {
@@ -114,15 +104,11 @@ public class TreinoService {
         );
     }
 
-    public List<TreinoResponseDTO> listarPorPersonalLogado(String email) throws RecursoNaoEncontradoException{
-
+    public Page<TreinoResponseDTO> listarPorPersonalLogado(String email, Pageable pageable) throws RecursoNaoEncontradoException {
         PersonalTrainer personal = personalTrainerRepository.findByUsuarioEmail(email)
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
-                        "Personal Trainer não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Personal Trainer não encontrado"));
 
-        return treinoRepository.findByAlunoPersonalId(personal.getId())
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return treinoRepository.findByAlunoPersonalId(personal.getId(), pageable)
+                .map(this::toDTO);
     }
 }

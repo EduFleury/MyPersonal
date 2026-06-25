@@ -13,6 +13,8 @@ import com.personal.training.repository.AlunoRepository;
 import com.personal.training.repository.PersonalTrainerRepository;
 import com.personal.training.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -55,12 +57,9 @@ public class AlunoService {
         return converterParaDTO(alunoSalvo);
     }
 
-    public List<AlunoResponseDTO> listarTodos() {
-
-        return alunoRepository.findAll()
-                .stream()
-                .map(this::converterParaDTO)
-                .toList();
+    public Page<AlunoResponseDTO> listarTodos(Pageable pageable) {
+        return alunoRepository.findAll(pageable)
+                .map(this::converterParaDTO);
     }
 
     public AlunoResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {
@@ -99,13 +98,11 @@ public class AlunoService {
                 .toList();
     }
 
-    public List<AlunoResponseDTO> listarMeusAlunos(String email) {
+    public Page<AlunoResponseDTO> listarMeusAlunos(Pageable pageable, String email) {
 
         return alunoRepository
-                .findByPersonalUsuarioEmail(email)
-                .stream()
-                .map(this::converterParaDTO)
-                .toList();
+                .findByPersonalUsuarioEmail(email, pageable)
+                .map(this::converterParaDTO);
     }
 
     public AlunoResponseDTO atualizar(

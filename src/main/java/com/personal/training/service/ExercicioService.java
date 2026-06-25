@@ -7,6 +7,8 @@ import com.personal.training.exception.RegraNegocioException;
 import com.personal.training.model.Exercicio;
 import com.personal.training.repository.ExercicioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,12 +32,10 @@ public class ExercicioService {
         return toDTO(exercicio);
     }
 
-    public List<ExercicioResponseDTO> listar() {
+    public Page<ExercicioResponseDTO> listar(Pageable pageable) {
 
-        return exercicioRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return exercicioRepository.findAll(pageable)
+                .map(this::toDTO);
     }
 
     public ExercicioResponseDTO buscarPorId(Long id) throws RecursoNaoEncontradoException {

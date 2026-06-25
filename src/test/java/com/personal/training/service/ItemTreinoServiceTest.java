@@ -6,6 +6,7 @@ import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.model.Exercicio;
 import com.personal.training.model.ItemTreino;
 import com.personal.training.model.Treino;
+import com.personal.training.model.Usuario;
 import com.personal.training.repository.ExercicioRepository;
 import com.personal.training.repository.ItemTreinoRepository;
 import com.personal.training.repository.TreinoRepository;
@@ -14,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
@@ -83,23 +88,30 @@ class ItemTreinoServiceTest {
     @Test
     void deveListarTodosOsItensTreino() {
         ItemTreino item = criarItemTreinoMock(10L, "3", "15", "10kg", 45, 1L, 2L);
-        when(itemTreinoRepository.findAll()).thenReturn(List.of(item));
 
-        List<ItemTreinoResponseDTO> resultado = itemTreinoService.listar();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ItemTreino> paginaDeItensTreino = new PageImpl<>(List.of(item));
+        when(itemTreinoRepository.findAll(pageable)).thenReturn(paginaDeItensTreino);
+
+        Page<ItemTreinoResponseDTO> resultado = itemTreinoService.listar(pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("3", resultado.get(0).series());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("3", resultado.getContent().get(0).series());
     }
 
     @Test
     void deveRetornarListaVaziaQuandoNaoHouverItens() {
-        when(itemTreinoRepository.findAll()).thenReturn(Collections.emptyList());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ItemTreino> paginaDeItensTreino = new PageImpl<>(Collections.emptyList());
 
-        List<ItemTreinoResponseDTO> resultado = itemTreinoService.listar();
+        when(itemTreinoRepository.findAll(pageable)).thenReturn(paginaDeItensTreino);
+
+        Page<ItemTreinoResponseDTO> resultado = itemTreinoService.listar(pageable);
 
         assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
+        assertEquals(0, resultado.getTotalElements());
+        assertTrue(resultado.getContent().isEmpty());
     }
 
     @Test

@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,9 +53,9 @@ public class ExecucaoTreinoController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     })
-    public List<ExecucaoTreinoResponseDTO> listar() {
+    public Page<ExecucaoTreinoResponseDTO> listar(@PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        return execucaoTreinoService.listar();
+        return execucaoTreinoService.listar(pageable);
     }
 
     @GetMapping("/{id}")

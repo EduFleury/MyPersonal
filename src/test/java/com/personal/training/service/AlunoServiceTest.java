@@ -17,6 +17,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
@@ -149,13 +154,17 @@ class AlunoServiceTest {
     @Test
     void deveListarTodosOsAlunos() {
         Aluno aluno = criarAlunoMock(10L, "Objetivo Teste");
-        when(alunoRepository.findAll()).thenReturn(List.of(aluno));
+        Pageable pageable = PageRequest.of(0, 10);
 
-        List<AlunoResponseDTO> resultado = alunoService.listarTodos();
+        Page<Aluno> paginaDeAlunos = new PageImpl<>(List.of(aluno));
+        when(alunoRepository.findAll(pageable)).thenReturn(paginaDeAlunos);
+
+        Page<AlunoResponseDTO> resultado = alunoService.listarTodos(pageable);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Objetivo Teste", resultado.get(0).objetivo());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("Objetivo Teste", resultado.getContent().get(0).objetivo());
     }
 
     @Test
@@ -235,12 +244,20 @@ class AlunoServiceTest {
     void deveListarMeusAlunosPorEmailDoPersonal() {
         String emailPersonal = "personal@email.com";
         Aluno aluno = criarAlunoMock(10L, "Foco");
-        when(alunoRepository.findByPersonalUsuarioEmail(emailPersonal)).thenReturn(List.of(aluno));
 
-        List<AlunoResponseDTO> resultado = alunoService.listarMeusAlunos(emailPersonal);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<Aluno> paginaDeAlunos = new PageImpl<>(List.of(aluno));
+
+        when(alunoRepository.findByPersonalUsuarioEmail(emailPersonal, pageable))
+                .thenReturn(paginaDeAlunos);
+
+        Page<AlunoResponseDTO> resultado = alunoService.listarMeusAlunos(pageable, emailPersonal);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals("Foco", resultado.getContent().get(0).objetivo());
     }
 
     @Test
