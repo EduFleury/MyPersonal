@@ -29,6 +29,7 @@ public class JwtService {
                 .subject(usuario.getEmail())
                 .claim("tipo", usuario.getTipo().name())
                 .claim("id", usuario.getId())
+                .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getKey())
@@ -55,4 +56,15 @@ public class JwtService {
         }
     }
 
+    public String generateRefreshToken(Usuario usuario) {
+        return Jwts.builder()
+                .setSubject(usuario.getEmail())
+                .claim("type", "refresh")
+                .setIssuedAt(new Date())
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000)
+                )
+                .signWith(getKey())
+                .compact();
+    }
 }

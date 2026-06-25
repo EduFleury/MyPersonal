@@ -2,6 +2,7 @@ package com.personal.training.service;
 
 import com.personal.training.dto.Login.LoginRequestDTO;
 import com.personal.training.dto.Login.LoginResponseDTO;
+import com.personal.training.dto.Login.RefreshTokenDTO;
 import com.personal.training.dto.Login.TrocaSenhaDTO;
 import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.SenhaIncorretaException;
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import io.jsonwebtoken.Claims;
 
 import java.util.Optional;
 
@@ -53,11 +55,13 @@ class AuthServiceTest {
 
         when(usuarioRepository.findByEmail(dto.email())).thenReturn(Optional.of(usuario));
         when(jwtService.gerarToken(usuario)).thenReturn("token-jwt-mockado");
+        when(jwtService.generateRefreshToken(usuario)).thenReturn("refresh-token-mockado"); // Adicionado
 
         LoginResponseDTO response = authService.login(dto);
 
         assertNotNull(response);
-        assertEquals("token-jwt-mockado", response.token());
+        assertEquals("token-jwt-mockado", response.accessToken());
+        assertEquals("refresh-token-mockado", response.refreshToken()); // Adicionado
         assertEquals("ALUNO", response.tipo());
         assertEquals(1L, response.id());
 
@@ -119,4 +123,86 @@ class AuthServiceTest {
         verify(usuarioRepository, times(0)).save(any());
         verify(passwordEncoder, times(0)).encode(any());
     }
+
+    @Test
+    void deveAtualizarTokenComRefreshTokenValido() {
+        RefreshTokenDTO dto = new RefreshTokenDTO("refresh-token-valido");
+
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setEmail("user@email.com");
+        usuario.setTipo(TipoUsuario.ALUNO);
+
+        // Criando um mock para as Claims que o jwtService extrai
+        Claims claimsMock = mock(Claims.class);
+        when(claimsMock.get("type")).thenReturn("refresh");
+
+        when(jwtService.extrairClaims(dto.refreshToken())).thenReturn(claimsMock);
+        when(jwtService.tokenValido(dto.refreshToken())).thenReturn(true);
+        when(jwtService.extrairEmail(dto.refreshToken())).thenReturn("user@email.com");
+        when(usuarioRepository.findByEmail("user@email.com")).thenReturn(Optional.of(usuario));
+        when(jwtService.gerarToken(usuario)).thenReturn("novo-access-token");
+
+        LoginResponseDTO response = authService.refreshTokenLogin(dto);
+
+        assertNotNull(response);
+        assertEquals("novo-access-token", response.accessToken());
+        assertEquals("refresh-token-valido", response.refreshToken());
+        assertEquals("ALUNO", response.tipo());
+        assertEquals(1L, response.id());
+    }
+
+    @Test
+    void deveLancarExcecaoSeTipoDoTokenNaoForRefresh() {
+        RefreshTokenDTO dto = new RefreshTokenDTO("token-tipo-errado");
+
+        Claims claimsMock = mock(Claims.class);
+        when(claimsMock.get("type")).thenReturn("access"); // Tipo inválido para essa operação
+
+        when(jwtService.extrairClaims(dto.refreshToken())).thenReturn(claimsMock);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                authService.refreshTokenLogin(dto)
+        );
+
+        assertEquals("Token inválido", exception.getMessage());
+        verify(usuarioRepository, times(0)).findByEmail(any());
+    }
+
+    @Test
+    void deveLancarExcecaoSeRefreshTokenEstiverExpiradoOuInvalido() {
+        RefreshTokenDTO dto = new RefreshTokenDTO("token-expirado");
+
+        Claims claimsMock = mock(Claims.class);
+        when(claimsMock.get("type")).thenReturn("refresh");
+
+        when(jwtService.extrairClaims(dto.refreshToken())).thenReturn(claimsMock);
+        when(jwtService.tokenValido(dto.refreshToken())).thenReturn(false); // Token expirou
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                authService.refreshTokenLogin(dto)
+        );
+
+        assertEquals("Refresh token inválido", exception.getMessage());
+        verify(usuarioRepository, times(0)).findByEmail(any());
+    }
+
+    @Test
+    void deveLancarExcecaoNoRefreshTokenSeUsuarioNaoForEncontrado() {
+        RefreshTokenDTO dto = new RefreshTokenDTO("refresh-token-valido");
+
+        Claims claimsMock = mock(Claims.class);
+        when(claimsMock.get("type")).thenReturn("refresh");
+
+        when(jwtService.extrairClaims(dto.refreshToken())).thenReturn(claimsMock);
+        when(jwtService.tokenValido(dto.refreshToken())).thenReturn(true);
+        when(jwtService.extrairEmail(dto.refreshToken())).thenReturn("naoexiste@email.com");
+        when(usuarioRepository.findByEmail("naoexiste@email.com")).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () ->
+                authService.refreshTokenLogin(dto)
+        );
+        verify(jwtService, times(0)).gerarToken(any());
+    }
+
 }

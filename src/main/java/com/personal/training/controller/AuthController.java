@@ -2,6 +2,7 @@ package com.personal.training.controller;
 
 import com.personal.training.dto.Login.LoginRequestDTO;
 import com.personal.training.dto.Login.LoginResponseDTO;
+import com.personal.training.dto.Login.RefreshTokenDTO;
 import com.personal.training.dto.Login.TrocaSenhaDTO;
 import com.personal.training.exception.RecursoNaoEncontradoException;
 import com.personal.training.exception.RegraNegocioException;
@@ -34,5 +35,21 @@ public class AuthController {
     })
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto) throws RecursoNaoEncontradoException {
         return ResponseEntity.ok(authService.login(dto));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh Login - Autenticar Usuário",
+            description = "Fazer refresh do login no sistema com Refresh Token"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "422", description = "Refresh Token Incorreto")
+    })
+    public ResponseEntity<LoginResponseDTO> refresh(
+            @RequestBody RefreshTokenDTO dto) throws RecursoNaoEncontradoException{
+
+        return ResponseEntity.ok(authService.refreshTokenLogin(dto));
     }
 }

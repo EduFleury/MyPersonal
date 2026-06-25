@@ -42,6 +42,7 @@ public class SecurityConfig {
 
                         // Rotas públicas
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
 
                         // Usuários: só ADMIN gerencia tudo
