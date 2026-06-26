@@ -118,19 +118,6 @@ Toda a documentação dos endpoints está disponível via Swagger/OpenAPI.
 
 ---
 
-# 🐳 Docker Hub
-
-Imagem disponível em:
-
-https://hub.docker.com/repository/docker/edufleury/training-api/general
-
-Ou execute diretamente:
-
-```bash
-docker pull edufleury/training-api:latest
-```
----
-
 # 📦 Funcionalidades
 
 ## Personal Trainer
@@ -210,6 +197,19 @@ A aplicação pode ser executada integralmente via Docker, incluindo:
 git clone https://github.com/edufleury/training-api
 cd training-api
 ```
+
+# 🐳 Docker Hub
+
+Imagem disponível em:
+
+https://hub.docker.com/repository/docker/edufleury/training-api/general
+
+Ou execute diretamente:
+
+```bash
+docker pull edufleury/training-api:latest
+```
+---
 
 ### Linux / Mac
 
