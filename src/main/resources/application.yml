@@ -2,9 +2,9 @@ spring:
   application:
     name: training
   datasource:
-    url: jdbc:mysql://localhost:3306/dbpersonal?useSSL=false&serverTimezone=America/Sao_Paulo
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
