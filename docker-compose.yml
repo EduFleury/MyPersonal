@@ -10,11 +10,16 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      timeout: 5s
+      retries: 5
+      interval: 5s
   app:
     build:
       context: .
@@ -22,7 +27,8 @@ services:
     container_name: training-api
     restart: always
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     env_file:
       - .env
     ports:
